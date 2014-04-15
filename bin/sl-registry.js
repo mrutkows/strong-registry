@@ -22,10 +22,16 @@ function initialize() {
 
 function executeCommand() {
   var commandName = process.argv[2] || 'list';
+
+  if (['version', '--version', '-v'].indexOf(commandName) != -1) {
+    console.log(require('../package.json').version);
+    return;
+  }
+
   var commandFn = registry.commands[commandName];
   if (!commandFn) {
     console.error('Unknown command %s.', commandName);
-    // todo print help
+    registry.commands.help.printHelp($0, console.error);
     process.exit(1);
   }
 
