@@ -92,8 +92,8 @@ describe('sl-registry script', function() {
         });
     });
 
-    it('offers default values from npmrc', function() {
-      givenNpmRc({
+    it('offers default values from ~/.npmrc', function() {
+      givenUserNpmRc({
         proxy: 'npmrc-proxy',
         'https-proxy': 'npmrc-https-proxy',
         username: 'npmrc-username',
@@ -109,18 +109,90 @@ describe('sl-registry script', function() {
         .run();
     });
   });
+
+  describe('use', function() {
+    beforeEach(givenInitializationWasAlreadyDone);
+
+    it('reports error when configuration does not exist', function() {
+      return new CliRunner(['use', 'unknown'], { stream: 'stderr' })
+        .expectExitCode(1)
+        .expect('Unknown registry: "unknown"')
+        .run();
+    });
+
+    it('updates ~/.npmrc', function() {
+      givenAdditionalEntry('custom', { registry: 'http://private/registry' });
+      return new CliRunner(['use', 'custom'])
+        .expect('Using the registry "custom" (http://private/registry).')
+        .run()
+        .then(function() {
+          var npmrc = readUserNpmRc();
+          expect(npmrc.registry).to.equal('http://private/registry');
+        });
+    });
+
+    it('deletes entries not defined in registry config', function() {
+      givenAdditionalEntry('custom');
+      givenUserNpmRc({ proxy: 'http://proxy' });
+      return new CliRunner(['use', 'custom'])
+        .run()
+        .then(function() {
+          var npmrc = readUserNpmRc();
+          expect(npmrc.proxy).to.be.undefined();
+        });
+    });
+
+    it('sets unique cache path', function() {
+      givenAdditionalEntry('custom');
+      return new CliRunner(['use', 'custom'])
+        .run()
+        .then(function() {
+          var npmrc = readUserNpmRc();
+          expect(npmrc.cache).to.equal(resolveDataPath('custom.cache'));
+        });
+    });
+
+    it('updates registry config from ~/.npmrc', function() {
+      givenAdditionalEntry('custom');
+      givenUserNpmRc({ _auth: 'user:name' });
+      return new CliRunner(['use', 'custom'])
+        .expect('Updating "default" with config from npmrc.')
+        .run()
+        .then(function() {
+          var rc = readNamedEntry('default');
+          expect(rc._auth).to.equal('user:name');
+        });
+    });
+
+    it('warns when ~/.npmrc contains unknown registry', function() {
+      givenAdditionalEntry('custom');
+      givenUserNpmRc({ registry: 'http://unknown-registry' });
+      return new CliRunner(['use', 'custom'])
+        .expect('Discarding npmrc configuration of an unknown registry ' +
+          'http://unknown-registry')
+        .run();
+    });
+  });
 });
 
 function givenInitializationWasAlreadyDone() {
   return new CliRunner().run();
 }
 
-function givenNpmRc(config) {
-  var file = path.resolve(CliRunner.HOME, '.npmrc');
-  fs.writeFileSync(file, ini.stringify(config), 'utf-8');
+function getUserNpmRc() {
+  return path.resolve(CliRunner.HOME, '.npmrc');
+}
+
+function givenUserNpmRc(config) {
+  storage.writeIniFile(getUserNpmRc(), config);
+}
+
+function readUserNpmRc() {
+  return storage.readIniFile(getUserNpmRc());
 }
 
 function givenAdditionalEntry(name, config) {
+  config = config || { registry: 'http://additional/registry' };
   var file = getIniFilePath(name);
   fs.writeFileSync(file, ini.stringify(config), 'utf-8');
 }
@@ -132,5 +204,9 @@ function readNamedEntry(name) {
 }
 
 function getIniFilePath(name) {
-  return path.resolve(CliRunner.HOME, '.strong-registry', name + '.ini');
+  return resolveDataPath(name + '.ini');
+}
+
+function resolveDataPath(relativePath) {
+  return path.resolve(CliRunner.HOME, '.strong-registry', relativePath);
 }

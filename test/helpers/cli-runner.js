@@ -105,3 +105,13 @@ CliRunner.prototype.sendLine = function(line) {
 CliRunner.prototype.waitForAvailableConfigurations = function() {
   return this.waitFor('Available configurations:');
 };
+
+/**
+ * Expect the process to exit with the given exit code.
+ * @param {number} value
+ * @returns {CliRunner}
+ */
+CliRunner.prototype.expectExitCode = function(value) {
+  this.expectedExitCode = value;
+  return this;
+};
