@@ -173,6 +173,39 @@ describe('sl-registry script', function() {
         .run();
     });
   });
+
+  describe('remove', function() {
+    beforeEach(givenInitializationWasAlreadyDone);
+
+    it('reports error when configuration does not exist', function() {
+      return new CliRunner(['remove', 'unknown'], { stream: 'stderr' })
+        .expectExitCode(1)
+        .expect('Unknown registry: "unknown"')
+        .run();
+    });
+
+    it('reports error when name is "default"', function() {
+      return new CliRunner(['remove', 'default'], { stream: 'stderr' })
+        .expectExitCode(1)
+        .expect('The default registry cannot be removed.')
+        .run();
+    });
+
+    it('removes config file and cache file', function() {
+      givenAdditionalEntry('custom');
+      var cachePath = resolveDataPath('custom.cache');
+      fs.mkdirsSync(cachePath);
+
+      return new CliRunner(['remove', 'custom'])
+        .expect('The registry "custom" was removed.')
+        .run()
+        .then(function() {
+          var iniPath = getIniFilePath('custom');
+          expect(fs.existsSync(iniPath), 'ini exists').to.be.false();
+          expect(fs.existsSync(cachePath), 'cache exists').to.be.false();
+        });
+    });
+  });
 });
 
 function givenInitializationWasAlreadyDone() {
