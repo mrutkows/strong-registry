@@ -91,7 +91,7 @@ CliRunner.prototype.waitFor = function(line) {
 
 /**
  * Add a "write line" directive to the current chain.
- * @param {string} line
+ * @param {string=} line
  * @returns {CliRunner}
  */
 CliRunner.prototype.sendLine = function(line) {

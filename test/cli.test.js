@@ -108,6 +108,28 @@ describe('sl-registry script', function() {
         .waitFor('Email: (npmrc-email').sendLine('')
         .run();
     });
+
+    it('deletes keys with empty value', function() {
+      // empty value means use default
+      // this is achieved by omitting the option from the ini file
+      return new CliRunner(['add', 'custom', 'http://registry'])
+        .waitFor('Registry URL:').sendLine()
+        .waitFor('HTTP proxy:').sendLine()
+        .waitFor('HTTPS proxy:').sendLine()
+        .waitFor('User name:').sendLine()
+        .waitFor('Email:').sendLine()
+        .waitFor('Always auth').sendLine()
+        .waitFor('Check validity').sendLine()
+        .run()
+        .then(function() {
+          var config = readNamedEntry('custom');
+          expect(config).to.eql({
+            registry: 'http://registry',
+            'always-auth': true,
+            'strict-ssl': true
+          });
+        });
+    });
   });
 
   describe('use', function() {
