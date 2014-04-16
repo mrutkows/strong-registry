@@ -113,7 +113,7 @@ describe('sl-registry script', function() {
   describe('use', function() {
     beforeEach(givenInitializationWasAlreadyDone);
 
-    it('reports error when configuration does not exist', function() {
+    itOnUnix('reports error when configuration does not exist', function() {
       return new CliRunner(['use', 'unknown'], { stream: 'stderr' })
         .expectExitCode(1)
         .expect('Unknown registry: "unknown"')
@@ -177,14 +177,14 @@ describe('sl-registry script', function() {
   describe('remove', function() {
     beforeEach(givenInitializationWasAlreadyDone);
 
-    it('reports error when configuration does not exist', function() {
+    itOnUnix('reports error when configuration does not exist', function() {
       return new CliRunner(['remove', 'unknown'], { stream: 'stderr' })
         .expectExitCode(1)
         .expect('Unknown registry: "unknown"')
         .run();
     });
 
-    it('reports error when name is "default"', function() {
+    itOnUnix('reports error when name is "default"', function() {
       return new CliRunner(['remove', 'default'], { stream: 'stderr' })
         .expectExitCode(1)
         .expect('The default registry cannot be removed.')
@@ -206,6 +206,15 @@ describe('sl-registry script', function() {
         });
     });
   });
+
+  function itOnUnix(name, test) {
+    // Skip tests that fail due to bug in Windows implementation of Node.js
+    // https://github.com/joyent/node/issues/3584
+    if (process.platform == 'win32')
+      it.skip(name, test);
+    else
+      it(name, test);
+  }
 });
 
 function givenInitializationWasAlreadyDone() {
