@@ -35,7 +35,9 @@ function CliRunner(args, options) {
   options.stripColors = true;
 
   var cli = require.resolve('../../bin/sl-registry.js');
-  this.spawn = nexpect.spawn(cli, args, options);
+  args.unshift(cli);
+  args.unshift(process.execPath);
+  this.spawn = nexpect.spawn(args, options);
   this.expectedExitCode = 0;
 }
 
