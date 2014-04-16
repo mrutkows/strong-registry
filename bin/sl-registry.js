@@ -1,9 +1,10 @@
 #!/usr/bin/env node
 
 var path = require('path');
+var osenv = require('osenv');
 var registry = require('../');
 
-var DATA_DIR = path.join(process.env.HOME, '.strong-registry');
+var DATA_DIR = path.join(osenv.home(), '.strong-registry');
 var $0 = process.env.CMD || path.basename(process.argv[1]);
 
 initialize();

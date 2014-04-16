@@ -24,7 +24,8 @@ function CliRunner(args, options) {
   options.env = extend(
     {
       PATH: process.env.PATH,
-      HOME: CliRunner.HOME
+      HOME: CliRunner.HOME,
+      USERPROFILE: CliRunner.HOME,
     },
     options.env
   );
