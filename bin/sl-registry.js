@@ -24,15 +24,19 @@ function initialize() {
 function executeCommand() {
   var commandName = process.argv[2] || 'list';
 
-  if (['version', '--version', '-v'].indexOf(commandName) != -1) {
+  if (['--version', '-v'].indexOf(commandName) != -1) {
     console.log(require('../package.json').version);
+    return;
+  }
+
+  if (['--help', '-h'].indexOf(commandName) != -1) {
+    registry.printHelp($0, console.log);
     return;
   }
 
   var commandFn = registry.commands[commandName];
   if (!commandFn) {
-    console.error('Unknown command %s.', commandName);
-    registry.commands.help.printHelp($0, console.error);
+    console.error('Unknown command: %s', commandName);
     process.exit(1);
   }
 
