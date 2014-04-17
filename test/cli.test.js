@@ -38,11 +38,11 @@ describe('sl-registry script', function() {
         .run();
     });
 
-    it('uses env.CMD as $0', function() {
-      return new CliRunner({ env: { CMD: 'TEST-CMD' }})
+    it('uses env.SLC_COMMAND as $0', function() {
+      return new CliRunner({ env: { SLC_COMMAND: 'TEST-CMD' }})
         .run()
         .then(function(stdout) {
-          expect(stdout.pop()).to.match(/Run `TEST-CMD use <name>`/);
+          expect(stdout.pop()).to.match(/Run `slc TEST-CMD use <name>`/);
         });
     });
 
