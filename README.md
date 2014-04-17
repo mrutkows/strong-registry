@@ -2,6 +2,18 @@
 
 CLI tool for switching your npmrc config between different registry servers.
 
+## Quick start
+
+```
+$ npm install -g strong-cli
+$ slc registry
+```
+
+## Documentation
+
+See the official [strong-cli documentation](http://docs.strongloop.com/display/DOC/slc+registry)
+for detailed usage instructions.
+
 ## Implementation overview
 
 On the first run, a directory $HOME/.strong-registry is created to keep
