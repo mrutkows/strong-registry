@@ -38,11 +38,11 @@ describe('sl-registry script', function() {
         .run();
     });
 
-    it('uses env.CMD as $0', function() {
-      return new CliRunner({ env: { CMD: 'TEST-CMD' }})
+    it('uses env.SLC_COMMAND as $0', function() {
+      return new CliRunner({ env: { SLC_COMMAND: 'TEST-CMD' }})
         .run()
         .then(function(stdout) {
-          expect(stdout.pop()).to.match(/Run `TEST-CMD use <name>`/);
+          expect(stdout.pop()).to.match(/Run `slc TEST-CMD use <name>`/);
         });
     });
 
@@ -58,6 +58,13 @@ describe('sl-registry script', function() {
 
   describe('add', function() {
     beforeEach(givenInitializationWasAlreadyDone);
+
+    itOnUnix('reports error when no name is provided', function() {
+      return new CliRunner(['add'], { stream: 'stderr' })
+        .expectExitCode(1)
+        .expect('Missing a required parameter: registry name.')
+        .run();
+    });
 
     it('reads options and creates a new entry', function() {
       return new CliRunner(['add', 'custom', 'http://custom/registry'])
@@ -142,6 +149,13 @@ describe('sl-registry script', function() {
         .run();
     });
 
+    itOnUnix('reports error when no name is provided', function() {
+      return new CliRunner(['use'], { stream: 'stderr' })
+        .expectExitCode(1)
+        .expect('Missing a required parameter: registry name.')
+        .run();
+    });
+
     it('updates ~/.npmrc', function() {
       givenAdditionalEntry('custom', { registry: 'http://private/registry' });
       return new CliRunner(['use', 'custom'])
@@ -203,6 +217,13 @@ describe('sl-registry script', function() {
       return new CliRunner(['remove', 'unknown'], { stream: 'stderr' })
         .expectExitCode(1)
         .expect('Unknown registry: "unknown"')
+        .run();
+    });
+
+    itOnUnix('reports error when no name is provided', function() {
+      return new CliRunner(['remove'], { stream: 'stderr' })
+        .expectExitCode(1)
+        .expect('Missing a required parameter: registry name.')
         .run();
     });
 
