@@ -1,6 +1,6 @@
 {
   "name": "strong-registry",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "CLI tool for switching your npmrc config between different registry servers",
   "main": "lib/index.js",
   "bin": {
