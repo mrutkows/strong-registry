@@ -75,7 +75,6 @@ describe('sl-registry script', function() {
 
         .waitFor('HTTP proxy:').sendLine('http://proxy')
         .waitFor('HTTPS proxy:').sendLine('https://secure-proxy')
-        .waitFor('User name:').sendLine('a-user-name')
         .waitFor('Email:').sendLine('user@example.com')
         .waitFor('Always authenticate? (Y/n)').sendLine('')
 
@@ -91,7 +90,6 @@ describe('sl-registry script', function() {
             registry: 'http://custom/registry',
             proxy: 'http://proxy',
             'https-proxy': 'https://secure-proxy',
-            username: 'a-user-name',
             email: 'user@example.com',
             'always-auth': true,
             'strict-ssl': true,
@@ -111,7 +109,6 @@ describe('sl-registry script', function() {
         .waitFor('Registry URL:').sendLine('')
         .waitFor('HTTP proxy: (npmrc-proxy)').sendLine('')
         .waitFor('HTTPS proxy: (npmrc-https-proxy)').sendLine('')
-        .waitFor('User name: (npmrc-username)').sendLine('')
         .waitFor('Email: (npmrc-email').sendLine('')
         .run();
     });
@@ -123,7 +120,6 @@ describe('sl-registry script', function() {
         .waitFor('Registry URL:').sendLine()
         .waitFor('HTTP proxy:').sendLine()
         .waitFor('HTTPS proxy:').sendLine()
-        .waitFor('User name:').sendLine()
         .waitFor('Email:').sendLine()
         .waitFor('Always auth').sendLine()
         .waitFor('Check validity').sendLine()
@@ -206,6 +202,16 @@ describe('sl-registry script', function() {
       return new CliRunner(['use', 'custom'])
         .expect('Discarding npmrc configuration of an unknown registry ' +
           'http://unknown-registry')
+        .run();
+    });
+
+    it('runs `npm login` when always-auth is enabled', function () {
+      givenAdditionalEntry('custom', { 'always-auth': true });
+      return new CliRunner(['use', 'custom'])
+        .expect('Using the registry "custom"')
+        .expect('The registry requires authentication for all requests.')
+        .expect('Running `npm login` to setup credentials.')
+        .expect('Username:')
         .run();
     });
   });
