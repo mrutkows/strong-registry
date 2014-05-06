@@ -91,6 +91,7 @@ describe('sl-registry script', function() {
             proxy: 'http://proxy',
             'https-proxy': 'https://secure-proxy',
             email: 'user@example.com',
+            cache: getCachePath('custom'),
             'always-auth': true,
             'strict-ssl': true,
           });
@@ -128,9 +129,25 @@ describe('sl-registry script', function() {
           var config = readNamedEntry('custom');
           expect(config).to.eql({
             registry: 'http://registry',
+            cache: getCachePath('custom'),
             'always-auth': true,
             'strict-ssl': true
           });
+        });
+    });
+
+    it('sets unique cache path', function() {
+      return new CliRunner(['add', 'custom', 'http://registry'])
+        .waitFor('Registry URL:').sendLine()
+        .waitFor('HTTP proxy:').sendLine()
+        .waitFor('HTTPS proxy:').sendLine()
+        .waitFor('Email:').sendLine()
+        .waitFor('Always auth').sendLine()
+        .waitFor('Check validity').sendLine()
+        .run()
+        .then(function() {
+          var npmrc = readNamedEntry('custom');
+          expect(npmrc.cache).to.equal(getCachePath('custom'));
         });
     });
   });
@@ -171,16 +188,6 @@ describe('sl-registry script', function() {
         .then(function() {
           var npmrc = readUserNpmRc();
           expect(npmrc.proxy).to.be.undefined();
-        });
-    });
-
-    it('sets unique cache path', function() {
-      givenAdditionalEntry('custom');
-      return new CliRunner(['use', 'custom'])
-        .run()
-        .then(function() {
-          var npmrc = readUserNpmRc();
-          expect(npmrc.cache).to.equal(resolveDataPath('custom.cache'));
         });
     });
 
@@ -242,7 +249,7 @@ describe('sl-registry script', function() {
 
     it('removes config file and cache file', function() {
       givenAdditionalEntry('custom');
-      var cachePath = resolveDataPath('custom.cache');
+      var cachePath = getCachePath('custom');
       fs.mkdirsSync(cachePath);
 
       return new CliRunner(['remove', 'custom'])
@@ -284,6 +291,7 @@ function readUserNpmRc() {
 
 function givenAdditionalEntry(name, config) {
   config = config || { registry: 'http://additional/registry' };
+  config.cache = config.cache || getCachePath(name);
   var file = getIniFilePath(name);
   fs.writeFileSync(file, ini.stringify(config), 'utf-8');
 }
@@ -296,6 +304,10 @@ function readNamedEntry(name) {
 
 function getIniFilePath(name) {
   return resolveDataPath(name + '.ini');
+}
+
+function getCachePath(name) {
+  return resolveDataPath(name + '.cache');
 }
 
 function resolveDataPath(relativePath) {
