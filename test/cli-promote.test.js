@@ -126,7 +126,36 @@ describe('`sl-registry promote`', function() {
           .expect('Downloading')
           .expect('Publishing')
           .run();
+      });
+  });
 
+  it('uses current registry as default for --from', function() {
+    return publishToSourceRegistry()
+      .then(useSourceRegistry)
+      .then(function() {
+        var args = ['promote', '--to', 'dest', pkg.nameAtVersion];
+
+        return new CliRunner(args)
+          .expect(
+            'Downloading ' + pkg.nameAtVersion + ' from src (http://')
+          .expect(
+            'Publishing ' + pkg.nameAtVersion + ' to dest (http://')
+          .run();
+      });
+  });
+
+  it('uses current registry as default for --to', function() {
+    return publishToSourceRegistry()
+      .then(useTargetRegistry())
+      .then(function() {
+        var args = ['promote', '--from', 'src', pkg.nameAtVersion];
+
+        return new CliRunner(args)
+          .expect(
+            'Downloading ' + pkg.nameAtVersion + ' from src (http://')
+          .expect(
+            'Publishing ' + pkg.nameAtVersion + ' to dest (http://')
+          .run();
       });
   });
 });
@@ -157,6 +186,18 @@ function publishToNamedRegistry(name) {
       // remove the published tarball from the cache
       fs.removeSync(sandbox.getCachePathForName(name));
     });
+}
+
+function useSourceRegistry() {
+  return useNamedRegistry('src');
+}
+
+function useTargetRegistry() {
+  return useNamedRegistry('dest');
+}
+
+function useNamedRegistry(name) {
+  return new CliRunner(['use', name]).run();
 }
 
 function promoteFromSourceToDestination() {
