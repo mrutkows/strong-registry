@@ -1,7 +1,6 @@
 var path = require('path');
 var fs = require('fs-extra');
 var ini = require('ini');
-var storage = require('../').storage;
 var expect = require('must');
 var sandbox = require('./helpers/sandbox');
 var CliRunner = require('./helpers/cli-runner');
@@ -27,7 +26,7 @@ describe('sl-registry script', function() {
   });
 
   describe('with no command', function() {
-    beforeEach(givenInitializationWasAlreadyDone);
+    beforeEach(sandbox.givenInitializedStorageWithDefaultEntry);
     it('lists available configurations', function() {
       return new CliRunner()
         .expect('Available configurations:')
@@ -47,7 +46,10 @@ describe('sl-registry script', function() {
     });
 
     it('flags the active configuration', function() {
-      givenAdditionalEntry('another', { registry: 'http://another/registry'});
+      sandbox.givenAdditionalEntry(
+        'another',
+        { registry: 'http://another/registry'}
+      );
       return new CliRunner()
         .waitForAvailableConfigurations()
         .expect('   another (http://another/registry)')
@@ -57,7 +59,7 @@ describe('sl-registry script', function() {
   });
 
   describe('add', function() {
-    beforeEach(givenInitializationWasAlreadyDone);
+    beforeEach(sandbox.givenInitializedStorageWithDefaultEntry);
 
     itOnUnix('reports error when no name is provided', function() {
       return new CliRunner(['add'], { stream: 'stderr' })
@@ -85,13 +87,13 @@ describe('sl-registry script', function() {
         .expect('Run `sl-registry.js use "custom"` to let' /* etc. */)
         .run()
         .then(function() {
-          var config = readNamedEntry('custom');
+          var config = sandbox.load('custom');
           expect(config).to.eql({
             registry: 'http://custom/registry',
             proxy: 'http://proxy',
             'https-proxy': 'https://secure-proxy',
             email: 'user@example.com',
-            cache: getCachePath('custom'),
+            cache: sandbox.getCachePathForName('custom'),
             'always-auth': true,
             'strict-ssl': true,
           });
@@ -99,7 +101,7 @@ describe('sl-registry script', function() {
     });
 
     it('offers default values from ~/.npmrc', function() {
-      givenUserNpmRc({
+      sandbox.givenUserNpmRc({
         proxy: 'npmrc-proxy',
         'https-proxy': 'npmrc-https-proxy',
         username: 'npmrc-username',
@@ -126,10 +128,10 @@ describe('sl-registry script', function() {
         .waitFor('Check validity').sendLine()
         .run()
         .then(function() {
-          var config = readNamedEntry('custom');
+          var config = sandbox.load('custom');
           expect(config).to.eql({
             registry: 'http://registry',
-            cache: getCachePath('custom'),
+            cache: sandbox.getCachePathForName('custom'),
             'always-auth': true,
             'strict-ssl': true
           });
@@ -146,14 +148,14 @@ describe('sl-registry script', function() {
         .waitFor('Check validity').sendLine()
         .run()
         .then(function() {
-          var npmrc = readNamedEntry('custom');
-          expect(npmrc.cache).to.equal(getCachePath('custom'));
+          var npmrc = sandbox.load('custom');
+          expect(npmrc.cache).to.equal(sandbox.getCachePathForName('custom'));
         });
     });
   });
 
   describe('use', function() {
-    beforeEach(givenInitializationWasAlreadyDone);
+    beforeEach(sandbox.givenInitializedStorageWithDefaultEntry);
 
     itOnUnix('reports error when configuration does not exist', function() {
       return new CliRunner(['use', 'unknown'], { stream: 'stderr' })
@@ -170,42 +172,45 @@ describe('sl-registry script', function() {
     });
 
     it('updates ~/.npmrc', function() {
-      givenAdditionalEntry('custom', { registry: 'http://private/registry' });
+      sandbox.givenAdditionalEntry(
+        'custom',
+        { registry: 'http://private/registry' }
+      );
       return new CliRunner(['use', 'custom'])
         .expect('Using the registry "custom" (http://private/registry).')
         .run()
         .then(function() {
-          var npmrc = readUserNpmRc();
+          var npmrc = sandbox.readUserNpmRrc();
           expect(npmrc.registry).to.equal('http://private/registry');
         });
     });
 
     it('deletes entries not defined in registry config', function() {
-      givenAdditionalEntry('custom');
-      givenUserNpmRc({ proxy: 'http://proxy' });
+      sandbox.givenAdditionalEntry('custom');
+      sandbox.givenUserNpmRc({ proxy: 'http://proxy' });
       return new CliRunner(['use', 'custom'])
         .run()
         .then(function() {
-          var npmrc = readUserNpmRc();
+          var npmrc = sandbox.readUserNpmRrc();
           expect(npmrc.proxy).to.be.undefined();
         });
     });
 
     it('updates registry config from ~/.npmrc', function() {
-      givenAdditionalEntry('custom');
-      givenUserNpmRc({ _auth: 'user:name' });
+      sandbox.givenAdditionalEntry('custom');
+      sandbox.givenUserNpmRc({ _auth: 'user:name' });
       return new CliRunner(['use', 'custom'])
         .expect('Updating "default" with config from npmrc.')
         .run()
         .then(function() {
-          var rc = readNamedEntry('default');
+          var rc = sandbox.load('default');
           expect(rc._auth).to.equal('user:name');
         });
     });
 
     it('warns when ~/.npmrc contains unknown registry', function() {
-      givenAdditionalEntry('custom');
-      givenUserNpmRc({ registry: 'http://unknown-registry' });
+      sandbox.givenAdditionalEntry('custom');
+      sandbox.givenUserNpmRc({ registry: 'http://unknown-registry' });
       return new CliRunner(['use', 'custom'])
         .expect('Discarding npmrc configuration of an unknown registry ' +
           'http://unknown-registry')
@@ -213,7 +218,7 @@ describe('sl-registry script', function() {
     });
 
     it('runs `npm login` when always-auth is enabled', function () {
-      givenAdditionalEntry('custom', { 'always-auth': true });
+      sandbox.givenAdditionalEntry('custom', { 'always-auth': true });
       return new CliRunner(['use', 'custom'])
         .expect('Using the registry "custom"')
         .expect('The registry requires authentication for all requests.')
@@ -224,7 +229,7 @@ describe('sl-registry script', function() {
   });
 
   describe('remove', function() {
-    beforeEach(givenInitializationWasAlreadyDone);
+    beforeEach(sandbox.givenInitializedStorageWithDefaultEntry);
 
     itOnUnix('reports error when configuration does not exist', function() {
       return new CliRunner(['remove', 'unknown'], { stream: 'stderr' })
@@ -248,15 +253,15 @@ describe('sl-registry script', function() {
     });
 
     it('removes config file and cache file', function() {
-      givenAdditionalEntry('custom');
-      var cachePath = getCachePath('custom');
+      sandbox.givenAdditionalEntry('custom');
+      var cachePath = sandbox.getCachePathForName('custom');
       fs.mkdirsSync(cachePath);
 
       return new CliRunner(['remove', 'custom'])
         .expect('The registry "custom" was removed.')
         .run()
         .then(function() {
-          var iniPath = getIniFilePath('custom');
+          var iniPath = sandbox.getIniPathForName('custom');
           expect(fs.existsSync(iniPath), 'ini exists').to.be.false();
           expect(fs.existsSync(cachePath), 'cache exists').to.be.false();
         });
@@ -272,44 +277,3 @@ describe('sl-registry script', function() {
       it(name, test);
   }
 });
-
-function givenInitializationWasAlreadyDone() {
-  return new CliRunner().run();
-}
-
-function getUserNpmRc() {
-  return path.resolve(CliRunner.HOME, '.npmrc');
-}
-
-function givenUserNpmRc(config) {
-  storage.writeIniFile(getUserNpmRc(), config);
-}
-
-function readUserNpmRc() {
-  return storage.readIniFile(getUserNpmRc());
-}
-
-function givenAdditionalEntry(name, config) {
-  config = config || { registry: 'http://additional/registry' };
-  config.cache = config.cache || getCachePath(name);
-  var file = getIniFilePath(name);
-  fs.writeFileSync(file, ini.stringify(config), 'utf-8');
-}
-
-function readNamedEntry(name) {
-  var file = getIniFilePath(name);
-  var content = fs.readFileSync(file, 'utf-8');
-  return ini.parse(content);
-}
-
-function getIniFilePath(name) {
-  return resolveDataPath(name + '.ini');
-}
-
-function getCachePath(name) {
-  return resolveDataPath(name + '.cache');
-}
-
-function resolveDataPath(relativePath) {
-  return path.resolve(CliRunner.HOME, '.strong-registry', relativePath);
-}
