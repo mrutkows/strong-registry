@@ -51,6 +51,17 @@ sandbox.givenAdditionalEntry = function(name, config) {
 };
 
 /**
+ * Update the named registry config entry.
+ * @param {string} name
+ * @param {function(config)} updateFn
+ */
+sandbox.updateEntry = function(name, updateFn) {
+  var config = storage.load(name);
+  updateFn(config);
+  storage.store(name, config);
+};
+
+/**
  * Get path of the npm userconfig ($HOME/.npmrc).
  * @returns {string}
  */
