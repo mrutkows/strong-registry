@@ -158,6 +158,30 @@ describe('`sl-registry promote`', function() {
           .run();
       });
   });
+
+  it('uses correct default value for cache path', function() {
+    // The default registry does not have `cache` option set
+    // which means to use the default npm cache $HOME/.npm.
+    // To keep the test simple, we will emulate this scenario
+    // by removing the cache option from a non-default entry
+
+    return publishToSourceRegistry()
+      .then(function() {
+        sandbox.updateEntry('src', function(config) {
+          delete config.cache;
+        });
+      })
+      .then(useSourceRegistry)
+      .then(function() {
+        var args = ['promote', '--to', 'dest', pkg.nameAtVersion];
+
+        return new CliRunner(args)
+          .expect('Downloading')
+          .expect('Publishing')
+          .expectExitCode(0)
+          .run();
+      });
+  });
 });
 
 function clearAuthCredentials(config) {
@@ -250,12 +274,14 @@ function setupRegistry(name) {
   return startRegistryServer(name)
     .then(function(server) {
       var port = server.address().port;
+      var url = 'http://localhost:' + port;
       sandbox.givenAdditionalEntry(name, {
-        registry: 'http://localhost:' + port,
+        registry: url,
         email: 'test@example.com',
         _auth: 'YWRtaW46cGFzcw==' // admin:pass
       });
       server.name = name;
+      server.url = url;
       return server;
     });
 }
