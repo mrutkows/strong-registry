@@ -21,6 +21,7 @@ describe('`sl-registry list`', function() {
     return new CliRunner(['list'], { env: { SLC_COMMAND: 'TEST-CMD' }})
       .run()
       .then(function(stdout) {
+        expect(stdout.pop()).to.match(/Run `slc TEST-CMD -h`/);
         expect(stdout.pop()).to.match(/Run `slc TEST-CMD use <name>`/);
       });
   });
