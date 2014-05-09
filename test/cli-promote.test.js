@@ -182,6 +182,24 @@ describe('`sl-registry promote`', function() {
           .run();
       });
   });
+
+  it('uses values from the master npmrc when appropriate', function() {
+    // when one of --from/--to registries is currently in use,
+    // promote should use $HOME/.npmrc instead of the ini file
+    // in order to use the current configuration options that
+    // might not be synced to the .ini file yet.
+    sandbox.updateEntry('src', function(config) {
+      config['always-auth'] = true;
+    });
+
+    return publishToSourceRegistry()
+      .then(useSourceRegistry)
+      .then(function() {
+        // keep auth credentials in $HOME/.npmrc, but remove them from src.ini
+        sandbox.updateEntry('src', clearAuthCredentials);
+      })
+      .then(promoteFromSourceToDestination);
+  });
 });
 
 function clearAuthCredentials(config) {
