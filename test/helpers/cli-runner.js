@@ -13,7 +13,9 @@ module.exports = exports = CliRunner;
  * @constructor
  */
 function CliRunner(args, options) {
-  if (!util.isArray(args)) {
+  if (typeof args === 'string') {
+    args = args.split(' ');
+  } else if (!util.isArray(args)) {
     options = args;
     args = [];
   } else if (!args) {
@@ -97,6 +99,16 @@ CliRunner.prototype.waitFor = function(line) {
 CliRunner.prototype.sendLine = function(line) {
   if (line === undefined) line = '';
   this.spawn.sendline(line);
+  return this;
+};
+
+/**
+ * Close the input stream of the CLI process.
+ * This method is automatically called by run().
+ * @returns {CliRunner}
+ */
+CliRunner.prototype.sendEof = function() {
+  this.spawn.sendEof();
   return this;
 };
 
