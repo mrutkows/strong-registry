@@ -46,6 +46,17 @@ describe('`sl-registry use`', function() {
       });
   });
 
+  it('preserves entries not related to registry config', function() {
+    sandbox.givenAdditionalEntry('custom');
+    sandbox.givenUserNpmRc({ browser: 'firefox' });
+    return new CliRunner(['use', 'custom'])
+      .run()
+      .then(function() {
+        var npmrc = sandbox.readUserNpmRrc();
+        expect(npmrc.browser).to.equal('firefox');
+      });
+  });
+
   it('updates registry config from ~/.npmrc', function() {
     sandbox.givenAdditionalEntry('custom');
     sandbox.givenUserNpmRc({ _auth: 'user:name' });
