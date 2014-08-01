@@ -12,13 +12,13 @@ CLI tool for working with multiple npm registry servers.
 ## Quick start
 
 ```
-$ npm install -g strong-cli
-$ slc registry
+$ npm install -g strong-registry
+$ sl-registry
 ```
 
 ## Documentation
 
-See the official [strong-cli documentation](http://docs.strongloop.com/display/DOC/slc+registry)
+See the official [StrongLoop command line interface documentation](http://docs.strongloop.com/display/SLC/slc+registry)
 for detailed usage instructions.
 
 ## FAQ
