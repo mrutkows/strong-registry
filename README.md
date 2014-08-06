@@ -1,18 +1,35 @@
 # strong-registry
 
-CLI tool for switching your npmrc config between different registry servers.
+CLI tool for working with multiple npm registry servers.
+
+## Features
+
+ - Manage named registry configurations (e.g. `private`, `staging`).
+ - Switch your `npm` between different registries, taking care
+   of per-registry settings like auth credentials or cache location.
+ - Promote (re-publish) an already published package to another registry.
 
 ## Quick start
 
 ```
-$ npm install -g strong-cli
-$ slc registry
+$ npm install -g strong-registry
+$ sl-registry
 ```
 
 ## Documentation
 
-See the official [strong-cli documentation](http://docs.strongloop.com/display/DOC/slc+registry)
+See the official [StrongLoop command line interface documentation](http://docs.strongloop.com/display/SLC/slc+registry)
 for detailed usage instructions.
+
+## FAQ
+
+#### How is this different than npmrc?
+
+[npmrc](https://github.com/deoxxa/npmrc) switches complete npm configurations
+by swapping your npmrc file.
+
+strong-registry rewrites only the registry-related
+configuration settings.
 
 ## Implementation overview
 

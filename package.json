@@ -1,6 +1,6 @@
 {
   "name": "strong-registry",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "CLI tool for switching your npmrc config between different registry servers",
   "main": "lib/index.js",
   "bin": {
@@ -23,7 +23,7 @@
   ],
   "author": "Miroslav Bajtos <miroslav@strongloop.com>",
   "license": {
-    "name": "Dual MIT/StrongLoop",
+    "name": "Dual Artistic/StrongLoop",
     "url": "https://github.com/strongloop/strong-registry/blob/master/LICENSE"
   },
   "bugs": {
