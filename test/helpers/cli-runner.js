@@ -32,7 +32,7 @@ function CliRunner(args, options) {
     options.env
   );
 
-  if (/nexpect/.test(process.env.DEBUG))
+  if (/(nexpect|\*)/.test(process.env.DEBUG))
     options.verbose = true;
 
   options.stripColors = true;
