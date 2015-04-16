@@ -1,5 +1,7 @@
 var Promise = require('bluebird');
 var sandbox = require('./sandbox');
+
+require('es6-shim');
 var sinopia = require('sinopia/lib/index');
 
 module.exports = exports = startRegistryServer;
