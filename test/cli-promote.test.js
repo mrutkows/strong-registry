@@ -292,7 +292,7 @@ function setupRegistry(name) {
   return startRegistryServer(name)
     .then(function(server) {
       var port = server.address().port;
-      var url = 'http://localhost:' + port;
+      var url = 'http://127.0.0.1:' + port;
       sandbox.givenAdditionalEntry(name, {
         registry: url,
         email: 'test@example.com',
