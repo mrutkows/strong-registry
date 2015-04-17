@@ -11,6 +11,8 @@ var execNpm = require('../lib/exec-npm');
 var pkg;
 
 describe('`sl-registry promote`', function() {
+  this.timeout(10000);
+
   beforeEach(sandbox.reset);
   beforeEach(sandbox.givenInitializedStorageWithDefaultEntry);
   beforeEach(givenTwoRegistryServers);
@@ -68,7 +70,9 @@ describe('`sl-registry promote`', function() {
     var args = 'promote --from src --to dest unknown@1.0.0';
     return new CliRunner(args, { stream: 'stderr' })
       .expectExitCode(2)
-      .expect('Command failed: npm http GET http://localhost')
+      // Unfortunately there is no reliable way how to verify the exact
+      // error when running on a recent npm version
+      .expect(/no such package available|Command failed:.*npm/)
       .run();
   });
 
@@ -79,7 +83,10 @@ describe('`sl-registry promote`', function() {
         var args = 'promote --from src --to dest ' + pkg.nameAtVersion;
         return new CliRunner(args, { stream: 'stderr' })
           .expectExitCode(2)
-          .expect('Command failed: npm http PUT http://localhost')
+          // Unfortunately there is no reliable way how to verify the exact
+          // error when running on a recent npm version
+          .expect(
+            /Cannot publish over existing version|Command failed:.*npm/)
           .run();
       });
   });
@@ -292,7 +299,7 @@ function setupRegistry(name) {
   return startRegistryServer(name)
     .then(function(server) {
       var port = server.address().port;
-      var url = 'http://localhost:' + port;
+      var url = 'http://127.0.0.1:' + port;
       sandbox.givenAdditionalEntry(name, {
         registry: url,
         email: 'test@example.com',
