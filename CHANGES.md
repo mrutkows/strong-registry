@@ -1,4 +1,18 @@
-2015-01-13, Version 1.1.4
+2015-06-03, Version 1.1.5
+=========================
+
+ * Update all dependencies to the latest version (Miroslav Bajtoš)
+
+ * Fix tests on Node v0.10, v0.12 and io.js 1.6 (Miroslav Bajtoš)
+
+ * test: enable nexpect debug log for DEBUG=* (Miroslav Bajtoš)
+
+ * Use IPv4 localhost address in tests. (Miroslav Bajtoš)
+
+ * package: uses jshint and mocha, added as dev-deps (Sam Roberts)
+
+
+2015-01-12, Version 1.1.4
 =========================
 
  * Fix bad CLA URL in CONTRIBUTING.md (Ryan Graham)
