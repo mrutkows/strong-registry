@@ -22,10 +22,7 @@
     "config"
   ],
   "author": "Miroslav Bajtos <miroslav@strongloop.com>",
-  "license": {
-    "name": "Dual Artistic/StrongLoop",
-    "url": "https://github.com/strongloop/strong-registry/blob/master/LICENSE"
-  },
+  "license": "Artistic-2.0",
   "bugs": {
     "url": "https://github.com/strongloop/strong-registry/issues"
   },
