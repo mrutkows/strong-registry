@@ -7,6 +7,7 @@
     "sl-registry": "bin/sl-registry.js"
   },
   "scripts": {
+    "coverage": "nyc npm test",
     "pretest": "jshint .",
     "test": "mocha"
   },
@@ -44,6 +45,7 @@
     "mocha": "^2.2.4",
     "must": "^0.12.0",
     "nexpect": "^0.5.0",
+    "nyc": "^3.2.2",
     "sinopia": "^1.2.1"
   }
 }
