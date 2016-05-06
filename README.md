@@ -18,7 +18,7 @@ $ sl-registry
 
 ## Documentation
 
-See the official [StrongLoop command line interface documentation](http://docs.strongloop.com/display/SLC/slc+registry)
+See the official [StrongLoop command line interface documentation](https://docs.strongloop.com/display/NODE/slc+registry)
 for detailed usage instructions.
 
 ## FAQ
