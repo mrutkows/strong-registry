@@ -1,3 +1,15 @@
+2016-05-06, Version 1.1.6
+=========================
+
+ * update copyright notices and license (Ryan Graham)
+
+ * Refer to licenses with a link (Sam Roberts)
+
+ * package: Add nyc dependency and a coverage script (Miroslav Bajtoš)
+
+ * Use strongloop conventions for licensing (Sam Roberts)
+
+
 2015-06-03, Version 1.1.5
 =========================
 
